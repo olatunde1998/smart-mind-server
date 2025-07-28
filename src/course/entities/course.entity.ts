@@ -2,7 +2,6 @@ import { Lesson } from 'src/lesson/entities/lesson.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-@Entity()
 export class Course {
   @PrimaryGeneratedColumn()
   id: number;
