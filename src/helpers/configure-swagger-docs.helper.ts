@@ -1,9 +1,9 @@
 import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
-import basicAuth from 'express-basic-auth';
+import * as basicAuth from 'express-basic-auth';
 
-const SWAGGER_ENVS = ['local', 'dev', 'staging'];
+const SWAGGER_ENVS = ['development', 'dev', 'staging'];
 
 export function configureSwaggerDocs(
   app: INestApplication,

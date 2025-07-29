@@ -2,13 +2,19 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { configureSwaggerDocs } from './helpers/configure-swagger-docs.helper';
-import express from 'express';
+import * as bodyParser from 'body-parser';
 import helmet from 'helmet';
+import { initializeDataSource } from './database/datasource';
+import { DataSource } from 'typeorm';
+import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    logger: ['log', 'error', 'warn', 'debug', 'verbose'],
+    bufferLogs: true,
+    rawBody: true,
   });
+
+  const logger = app.get(Logger);
 
   const configService = app.get<ConfigService>(ConfigService);
 
@@ -16,13 +22,23 @@ async function bootstrap() {
   app.use(helmet());
 
   app.use(
-    express.json({
+    bodyParser.json({
       limit: '1.5mb',
       verify: (req, res, buf) => {
         (req as any).rawBody = buf.toString();
       },
     }),
   );
+
+  app.get(DataSource);
+
+  try {
+    await initializeDataSource();
+    console.log('✅ Data Source has been initialized!');
+  } catch (err) {
+    console.error('❌ Error during Data Source initialization', err);
+    process.exit(1);
+  }
 
   configureSwaggerDocs(app, configService);
 
@@ -32,7 +48,14 @@ async function bootstrap() {
     credentials: true,
   });
 
-  await app.listen(8080).catch((e) => console.log(e));
-  console.log(`Application is running on: http://localhost:8080`);
+  const port = app.get<ConfigService>(ConfigService).get<number>('server.port');
+  console.log(`🚀 Listening on port http://localhost:${port}`);
+  await app.listen(port);
+
+  logger.log({
+    message: 'server started 🚀',
+    port,
+    url: `http://localhost:${port}/api/v1`,
+  });
 }
 bootstrap();
