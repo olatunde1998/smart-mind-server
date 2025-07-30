@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import { initializeDataSource } from './database/datasource';
 import { DataSource } from 'typeorm';
 import { Logger } from 'nestjs-pino';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -27,6 +28,14 @@ async function bootstrap() {
       verify: (req, res, buf) => {
         (req as any).rawBody = buf.toString();
       },
+    }),
+  );
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
     }),
   );
 

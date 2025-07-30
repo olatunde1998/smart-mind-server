@@ -1,4 +1,6 @@
 import * as dotenv from 'dotenv';
+import { Course } from 'src/course/entities/course.entity';
+import { Lesson } from 'src/lesson/entities/lesson.entity';
 import { DataSource } from 'typeorm';
 
 dotenv.config();
@@ -13,7 +15,8 @@ const dataSource = new DataSource({
   host: process.env.DB_HOST,
   port: +process.env.DB_PORT,
   database: process.env.DB_NAME,
-  entities: [process.env.DB_ENTITIES],
+  entities: [Course, Lesson],
+  // entities: [process.env.DB_ENTITIES],
   migrations: [process.env.DB_MIGRATIONS],
   synchronize: isDevelopment,
   migrationsTableName: 'migrations',

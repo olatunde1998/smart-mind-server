@@ -4,16 +4,35 @@ import { Repository } from 'typeorm';
 import { Course } from './entities/course.entity';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
+import { CloudinaryService } from 'src/utils/cloudinary.service';
 
 @Injectable()
 export class CourseService {
   constructor(
     @InjectRepository(Course)
     private courseRepository: Repository<Course>,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-  async create(createCourseDto: CreateCourseDto): Promise<Course> {
-    const course = this.courseRepository.create(createCourseDto);
+  async create(
+    createCourseDto: CreateCourseDto,
+    file?: Express.Multer.File,
+  ): Promise<Course> {
+    let courseBannerUrl = '';
+
+    if (file) {
+      const uploaded = await this.cloudinaryService.uploadFile(
+        file,
+        'course-banners',
+      );
+      courseBannerUrl = uploaded;
+    }
+
+    const course = this.courseRepository.create({
+      ...createCourseDto,
+      courseBannerUrl,
+    });
+
     return this.courseRepository.save(course);
   }
 
@@ -21,7 +40,7 @@ export class CourseService {
     return this.courseRepository.find({ relations: ['lessons'] });
   }
 
-  async findOne(id: number): Promise<Course> {
+  async findOne(id: string): Promise<Course> {
     const course = await this.courseRepository.findOne({
       where: { id },
       relations: ['lessons'],
@@ -31,7 +50,11 @@ export class CourseService {
     return course;
   }
 
-  async update(id: number, updateCourseDto: UpdateCourseDto): Promise<Course> {
+  async update(
+    id: string,
+    updateCourseDto: UpdateCourseDto,
+    file?: Express.Multer.File,
+  ): Promise<Course> {
     const course = await this.courseRepository.preload({
       id,
       ...updateCourseDto,
@@ -39,10 +62,22 @@ export class CourseService {
 
     if (!course) throw new NotFoundException('Course not found');
 
+    if (file) {
+      if (course.courseBannerUrl) {
+        await this.cloudinaryService.deleteFile(course.courseBannerUrl);
+      }
+
+      const uploaded = await this.cloudinaryService.uploadFile(
+        file,
+        'course-banners',
+      );
+      course.courseBannerUrl = uploaded;
+    }
+
     return this.courseRepository.save(course);
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: string): Promise<void> {
     const course = await this.findOne(id);
     await this.courseRepository.remove(course);
   }

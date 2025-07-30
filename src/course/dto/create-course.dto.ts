@@ -1,16 +1,26 @@
-import { IsString, IsArray, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-import { CreateLessonDto } from 'src/lesson/dto/create-lesson.dto';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsString } from 'class-validator';
 
 export class CreateCourseDto {
+  @ApiProperty({
+    description: 'Name of the course',
+    example: 'Prompt Engineering',
+  })
   @IsString()
   courseName: string;
 
+  @ApiProperty({
+    description: 'Detailed description of the course',
+    example: 'This course introduces you to the principles and practices...',
+  })
   @IsString()
-  courseBannerUrl: string;
+  description: string;
 
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => CreateLessonDto)
-  lessons: CreateLessonDto[];
+  @ApiPropertyOptional({
+    description: 'Optional banner image file (image only)',
+    type: 'string',
+    format: 'binary',
+  })
+  @IsOptional()
+  file?: any;
 }
