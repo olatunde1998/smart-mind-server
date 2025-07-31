@@ -4,15 +4,36 @@ import { Repository } from 'typeorm';
 import { Lesson } from './entities/lesson.entity';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
+import { CloudinaryService } from 'src/utils/cloudinary.service';
 
 @Injectable()
 export class LessonService {
   constructor(
     @InjectRepository(Lesson)
     private lessonRepository: Repository<Lesson>,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-  async create(createLessonDto: CreateLessonDto): Promise<Lesson> {
+  async create(
+    createLessonDto: CreateLessonDto,
+    files: { video?: Express.Multer.File[]; pdf?: Express.Multer.File[] },
+  ): Promise<Lesson> {
+    if (files.video?.[0]) {
+      const videoUrl = await this.cloudinaryService.uploadFile(
+        files.video[0],
+        'lessons/videos',
+      );
+      createLessonDto.videoUrl = videoUrl;
+    }
+
+    if (files.pdf?.[0]) {
+      const pdfUrl = await this.cloudinaryService.uploadFile(
+        files.pdf[0],
+        'lessons/pdfs',
+      );
+      createLessonDto.pdfDocumentUrl = pdfUrl;
+    }
+
     const lesson = this.lessonRepository.create(createLessonDto);
     return this.lessonRepository.save(lesson);
   }
