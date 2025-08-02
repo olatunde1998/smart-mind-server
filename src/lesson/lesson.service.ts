@@ -42,7 +42,7 @@ export class LessonService {
     return this.lessonRepository.find({ relations: ['course'] });
   }
 
-  async findOne(id: number): Promise<Lesson> {
+  async findOne(id: string): Promise<Lesson> {
     const lesson = await this.lessonRepository.findOne({
       where: { id },
       relations: ['course'],
@@ -51,7 +51,7 @@ export class LessonService {
     return lesson;
   }
 
-  async update(id: number, updateLessonDto: UpdateLessonDto): Promise<Lesson> {
+  async update(id: string, updateLessonDto: UpdateLessonDto): Promise<Lesson> {
     const lesson = await this.lessonRepository.preload({
       id,
       ...updateLessonDto,
@@ -60,7 +60,7 @@ export class LessonService {
     return this.lessonRepository.save(lesson);
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: string): Promise<void> {
     const lesson = await this.findOne(id);
     await this.lessonRepository.remove(lesson);
   }

@@ -15,6 +15,8 @@ import { APP_PIPE } from '@nestjs/core';
 import { AuthGuard } from './guards/auth.guard';
 import { AppService } from './app.service';
 import { DBConnectionTestService } from './utils/db-connection-test.service';
+import ProbeController from './probe.controller';
+import HealthController from './health.controller';
 
 dotenv.config();
 const profile = process.env.PROFILE;
@@ -77,7 +79,7 @@ const profile = process.env.PROFILE;
     CourseModule,
     LessonModule,
   ],
-  controllers: [AppController],
+  controllers: [ProbeController, HealthController],
   providers: [
     {
       provide: 'CONFIG',
@@ -88,7 +90,7 @@ const profile = process.env.PROFILE;
       useFactory: () =>
         new ValidationPipe({
           whitelist: true,
-          forbidNonWhitelisted: true,
+          forbidNonWhitelisted: false,
         }),
     },
     {

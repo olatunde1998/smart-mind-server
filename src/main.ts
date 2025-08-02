@@ -8,6 +8,7 @@ import { initializeDataSource } from './database/datasource';
 import { DataSource } from 'typeorm';
 import { Logger } from 'nestjs-pino';
 import { ValidationPipe } from '@nestjs/common';
+import { ResponseInterceptor } from './shared/interceptors/response.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -38,6 +39,8 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  // app.useGlobalInterceptors(new ResponseInterceptor());
 
   app.get(DataSource);
 

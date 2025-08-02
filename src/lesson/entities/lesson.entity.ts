@@ -9,16 +9,16 @@ import {
 
 @Entity()
 export class Lesson {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   title: string;
 
-  @Column()
+  @Column({ nullable: true })
   videoUrl: string;
 
-  @Column()
+  @Column({ nullable: true })
   pdfDocumentUrl: string;
 
   @ManyToOne(() => Course, (course) => course.lessons)
@@ -26,5 +26,5 @@ export class Lesson {
   course: Course;
 
   @Column()
-  courseId: number;
+  courseId: string;
 }

@@ -21,8 +21,10 @@ import { LessonService } from './lesson.service';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
 import { Lesson } from './entities/lesson.entity';
+import { skipAuth } from 'src/helpers/skipAuth';
 
 @ApiTags('Lessons')
+@skipAuth()
 @Controller('lessons')
 export class LessonController {
   constructor(private readonly lessonService: LessonService) {}
@@ -83,18 +85,18 @@ export class LessonController {
   @Get(':id')
   @ApiOperation({ summary: 'Get a lesson by ID' })
   findOne(@Param('id') id: string) {
-    return this.lessonService.findOne(+id);
+    return this.lessonService.findOne(id);
   }
 
   @Put(':id')
   @ApiOperation({ summary: 'Update a lesson' })
   update(@Param('id') id: string, @Body() updateLessonDto: UpdateLessonDto) {
-    return this.lessonService.update(+id, updateLessonDto);
+    return this.lessonService.update(id, updateLessonDto);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a lesson' })
   remove(@Param('id') id: string) {
-    return this.lessonService.remove(+id);
+    return this.lessonService.remove(id);
   }
 }

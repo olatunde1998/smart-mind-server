@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateLessonDto {
@@ -14,7 +14,7 @@ export class CreateLessonDto {
   @IsOptional()
   pdfDocumentUrl?: string;
 
-  @ApiProperty({ example: 1 })
-  @IsNumber()
-  courseId: number;
+  @ApiProperty({ example: 'c5b9b55e-6918-4964-ab09-fa32554cf982' })
+  @IsString()
+  courseId: string;
 }
