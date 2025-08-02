@@ -22,7 +22,7 @@ export function configureSwaggerDocs(
     );
 
     const config = new DocumentBuilder()
-      .setTitle('Audstack API')
+      .setTitle('Smart Mind API')
       .setDescription('The API description')
       .setVersion('1.0')
       .addBearerAuth()
