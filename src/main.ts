@@ -40,7 +40,7 @@ async function bootstrap() {
     }),
   );
 
-  // app.useGlobalInterceptors(new ResponseInterceptor());
+  app.useGlobalInterceptors(new ResponseInterceptor());
 
   app.get(DataSource);
 
