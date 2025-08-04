@@ -55,7 +55,11 @@ async function bootstrap() {
   configureSwaggerDocs(app, configService);
 
   app.enableCors({
-    origin: configService.get<string>('ENDPOINT_CORS'),
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'https://smartminds.vercel.app',
+    ],
     methods: 'GET,POST,PUT,PATCH,DELETE',
     credentials: true,
   });
