@@ -8,6 +8,8 @@ import {
   Delete,
   UseInterceptors,
   UploadedFile,
+  UploadedFiles,
+  Put,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -19,8 +21,12 @@ import {
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  FileFieldsInterceptor,
+  FileInterceptor,
+} from '@nestjs/platform-express';
 import { skipAuth } from 'src/helpers/skipAuth';
+import { Course } from './entities/course.entity';
 
 @ApiTags('Courses')
 @skipAuth()
@@ -56,20 +62,49 @@ export class CourseController {
     return this.courseService.findOne(id);
   }
 
-  @Patch(':id')
-  @ApiOperation({ summary: 'Update a course' })
+  @Put(':id')
+  @ApiOperation({ summary: 'Update a Course' })
   @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    description: 'Update data and banner image',
-    type: UpdateCourseDto,
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'file', maxCount: 1 }, // generic file field
+    ]),
+  )
+  @ApiResponse({
+    status: 200,
+    description: 'Course updated successfully',
+    type: Course,
   })
-  @UseInterceptors(FileInterceptor('file'))
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        courseName: {
+          type: 'string',
+          description: 'Name of the course',
+          example: 'Prompt Engineering',
+        },
+        description: {
+          type: 'string',
+          description: 'Detailed description of the course',
+          example:
+            'This course introduces you to the principles and practices...',
+        },
+        file: {
+          type: 'string',
+          format: 'binary', // still 'binary' in Swagger for any file
+          description: 'Any file upload',
+        },
+      },
+    },
+  })
   update(
     @Param('id') id: string,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: { file?: Express.Multer.File[] },
     @Body() updateCourseDto: UpdateCourseDto,
   ) {
-    return this.courseService.update(id, updateCourseDto, file);
+    const uploadedFile = files.file?.[0];
+    return this.courseService.update(id, updateCourseDto, uploadedFile);
   }
 
   @Delete(':id')
