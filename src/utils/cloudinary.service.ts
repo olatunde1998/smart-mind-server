@@ -28,17 +28,17 @@ export class CloudinaryService {
       const isPdf = file.mimetype === 'application/pdf';
       const isVideo = file.mimetype.startsWith('video/');
 
-      // const fileName = file.originalname.split('.').slice(0, -1).join('.');
-      const originalName = path.parse(file.originalname).name;
-      const safeName = this.slugify(originalName);
+      const fileName = file.originalname.split('.').slice(0, -1).join('.');
+      // const originalName = path.parse(file.originalname).name;
+      // const safeName = this.slugify(originalName);
 
       const stream = cloudinary.uploader.upload_stream(
         {
           resource_type: isPdf ? 'raw' : isVideo ? 'video' : 'image',
           // type: 'upload',
           folder,
-          public_id: safeName,
-          // public_id: fileName,
+          // public_id: safeName,
+          public_id: fileName,
           use_filename: true,
           unique_filename: false,
           overwrite: true,

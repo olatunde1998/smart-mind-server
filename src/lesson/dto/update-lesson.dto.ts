@@ -1,23 +1,17 @@
-import { PartialType, ApiProperty } from '@nestjs/swagger';
+import { PartialType, OmitType, ApiProperty } from '@nestjs/swagger';
 import { CreateLessonDto } from './create-lesson.dto';
-import { IsOptional, IsString, IsUrl, IsInt } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
-export class UpdateLessonDto extends PartialType(CreateLessonDto) {
+export class UpdateLessonDto extends PartialType(
+  OmitType(CreateLessonDto, [
+    'courseId',
+    'videoUrl',
+    'pdfDocumentUrl',
+  ] as const),
+) {
   @IsOptional()
   @IsString()
   title?: string;
-
-  // @ApiProperty({ example: 'c5b9b55e-6918-4964-ab09-fa32554cf982' })
-  // @IsString()
-  // courseId: string;
-
-  // @IsOptional()
-  // @IsUrl()
-  // videoUrl?: string;
-
-  // @IsOptional()
-  // @IsUrl()
-  // pdfDocumentUrl?: string;
 
   @ApiProperty({
     type: 'string',

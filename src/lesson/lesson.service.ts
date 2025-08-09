@@ -61,32 +61,31 @@ export class LessonService {
     if (!lesson) throw new NotFoundException('Lesson not found');
 
     if (files?.video?.[0]) {
-      const videoUrl = await this.cloudinaryService.uploadFile(
+      lesson.videoUrl = await this.cloudinaryService.uploadFile(
         files.video[0],
         'lessons/videos',
       );
-      updateLessonDto.videoUrl = videoUrl;
-    } else {
-      updateLessonDto.videoUrl = lesson.videoUrl;
     }
 
     if (files?.pdf?.[0]) {
-      const pdfUrl = await this.cloudinaryService.uploadFile(
+      lesson.pdfDocumentUrl = await this.cloudinaryService.uploadFile(
         files.pdf[0],
         'lessons/pdfs',
       );
-      updateLessonDto.pdfDocumentUrl = pdfUrl;
-    } else {
-      updateLessonDto.pdfDocumentUrl = lesson.pdfDocumentUrl;
     }
 
-    const cleanedDto = Object.fromEntries(
-      Object.entries(updateLessonDto).filter(
-        ([key, value]) => value !== '' && key !== 'video' && key !== 'pdf',
-      ),
-    );
+    for (const [key, value] of Object.entries(updateLessonDto)) {
+      if (
+        value !== undefined &&
+        value !== '' &&
+        key !== 'video' &&
+        key !== 'pdf'
+      ) {
+        (lesson as any)[key] = value;
+      }
+    }
 
-    const updatedLesson = this.lessonRepository.merge(lesson, cleanedDto);
+    const updatedLesson = this.lessonRepository.merge(lesson, updateLessonDto);
     return this.lessonRepository.save(updatedLesson);
   }
 
