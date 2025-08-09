@@ -51,13 +51,43 @@ export class LessonService {
     return lesson;
   }
 
-  async update(id: string, updateLessonDto: UpdateLessonDto): Promise<Lesson> {
-    const lesson = await this.lessonRepository.preload({
-      id,
-      ...updateLessonDto,
-    });
+  async update(
+    id: string,
+    updateLessonDto: UpdateLessonDto,
+    files?: { video?: Express.Multer.File[]; pdf?: Express.Multer.File[] },
+  ): Promise<Lesson> {
+    const lesson = await this.lessonRepository.findOne({ where: { id } });
+    console.log('lesson', lesson);
     if (!lesson) throw new NotFoundException('Lesson not found');
-    return this.lessonRepository.save(lesson);
+
+    if (files?.video?.[0]) {
+      const videoUrl = await this.cloudinaryService.uploadFile(
+        files.video[0],
+        'lessons/videos',
+      );
+      updateLessonDto.videoUrl = videoUrl;
+    } else {
+      updateLessonDto.videoUrl = lesson.videoUrl;
+    }
+
+    if (files?.pdf?.[0]) {
+      const pdfUrl = await this.cloudinaryService.uploadFile(
+        files.pdf[0],
+        'lessons/pdfs',
+      );
+      updateLessonDto.pdfDocumentUrl = pdfUrl;
+    } else {
+      updateLessonDto.pdfDocumentUrl = lesson.pdfDocumentUrl;
+    }
+
+    const cleanedDto = Object.fromEntries(
+      Object.entries(updateLessonDto).filter(
+        ([key, value]) => value !== '' && key !== 'video' && key !== 'pdf',
+      ),
+    );
+
+    const updatedLesson = this.lessonRepository.merge(lesson, cleanedDto);
+    return this.lessonRepository.save(updatedLesson);
   }
 
   async remove(id: string): Promise<void> {

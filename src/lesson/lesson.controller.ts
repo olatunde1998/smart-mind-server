@@ -89,9 +89,29 @@ export class LessonController {
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Update a lesson' })
-  update(@Param('id') id: string, @Body() updateLessonDto: UpdateLessonDto) {
-    return this.lessonService.update(id, updateLessonDto);
+  @ApiOperation({
+    summary: 'Update a lesson with optional video and PDF upload',
+  })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'video', maxCount: 1 },
+      { name: 'pdf', maxCount: 1 },
+    ]),
+  )
+  @ApiResponse({
+    status: 200,
+    description: 'Lesson updated successfully',
+    type: Lesson,
+  })
+  @ApiBody({ type: UpdateLessonDto })
+  update(
+    @Param('id') id: string,
+    @UploadedFiles()
+    files: { video?: Express.Multer.File[]; pdf?: Express.Multer.File[] },
+    @Body() updateLessonDto: UpdateLessonDto,
+  ) {
+    return this.lessonService.update(id, updateLessonDto, files);
   }
 
   @Delete(':id')

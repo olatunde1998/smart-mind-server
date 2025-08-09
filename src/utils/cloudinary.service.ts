@@ -15,10 +15,34 @@ export class CloudinaryService {
     });
   }
 
+  private slugify(filename: string): string {
+    return filename
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9\-]/g, '')
+      .replace(/-+/g, '-');
+  }
+
   async uploadFile(file: Express.Multer.File, folder: string): Promise<string> {
     return new Promise((resolve, reject) => {
+      const isPdf = file.mimetype === 'application/pdf';
+      const isVideo = file.mimetype.startsWith('video/');
+
+      // const fileName = file.originalname.split('.').slice(0, -1).join('.');
+      const originalName = path.parse(file.originalname).name;
+      const safeName = this.slugify(originalName);
+
       const stream = cloudinary.uploader.upload_stream(
-        { resource_type: 'auto', folder },
+        {
+          resource_type: isPdf ? 'raw' : isVideo ? 'video' : 'image',
+          // type: 'upload',
+          folder,
+          public_id: safeName,
+          // public_id: fileName,
+          use_filename: true,
+          unique_filename: false,
+          overwrite: true,
+        },
         (error, result) => {
           if (error) return reject(error);
           resolve(result.secure_url);
